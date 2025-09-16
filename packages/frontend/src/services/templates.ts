@@ -68,11 +68,6 @@ export const useTemplateService = defineStore("services.templates", () => {
 
     if (result.type === "Ok") {
       store.send({ type: "DeleteTemplate", id });
-      const analysisState = analysisStore.selectionState.getState();
-
-      if (analysisState.type !== "None" && analysisState.templateId === id) {
-        analysisStore.selectionState.send({ type: "Reset" });
-      }
     } else {
       sdk.window.showToast(result.error, {
         variant: "error",
@@ -82,7 +77,6 @@ export const useTemplateService = defineStore("services.templates", () => {
 
   const clearTemplates = async () => {
     const result = await repository.clearTemplates();
-
     if (result.type === "Ok") {
       store.send({ type: "ClearTemplates" });
       analysisStore.selectionState.send({ type: "Reset" });
@@ -93,49 +87,30 @@ export const useTemplateService = defineStore("services.templates", () => {
     }
   };
 
-  const initialize = async () => {
-    store.send({ type: "Start" });
-
-    const result = await repository.getTemplates();
-
+  const importOpenApi = async (fileContents: string) => {
+    const result = await repository.importOpenApi(fileContents);
     if (result.type === "Ok") {
-      store.send({ type: "Success", templates: result.templates });
+      sdk.window.showToast(`Imported ${result.templates.length} templates`, {
+        variant: "success",
+      });
+      // templates:created events from backend will populate the store; no further action required.
     } else {
-      store.send({ type: "Error", error: result.error });
+      sdk.window.showToast(result.error, {
+        variant: "error",
+      });
     }
-
-    sdk.backend.onEvent("templates:created", (template) => {
-      store.send({ type: "AddTemplate", template });
-    });
-
-    sdk.backend.onEvent("templates:updated", (template) => {
-      store.send({ type: "UpdateTemplate", template });
-    });
-
-    sdk.backend.onEvent("templates:cleared", () => {
-      store.send({ type: "ClearTemplates" });
-      analysisStore.selectionState.send({ type: "Reset" });
-    });
-
-    sdk.backend.onEvent("cursor:mark", (templateId, isScanning) => {
-      store.send({ type: "MarkTemplate", templateId, isScanning });
-    });
-
-    sdk.backend.onEvent("cursor:clear", () => {
-      store.send({ type: "ClearMarkings" });
-    });
+    return result;
   };
 
-  const getState = () => store.getState();
-
   return {
-    getState,
-    initialize,
+    getState: store.getState,
+    initialize: store.initialize,
     toggleTemplateRole,
     toggleTemplateUser,
     addTemplate,
     updateTemplate,
     deleteTemplate,
     clearTemplates,
+    importOpenApi,
   };
 });

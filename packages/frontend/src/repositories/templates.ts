@@ -94,24 +94,7 @@ export const useTemplateRepository = () => {
     }
   };
 
-  const deleteTemplate = async (id: string) => {
-    try {
-      await sdk.backend.deleteTemplate(id);
-      return {
-        type: "Ok" as const,
-      };
-    } catch {
-      return {
-        type: "Err" as const,
-        error: "Failed to delete template",
-      };
-    }
-  };
-
-  const updateTemplate = async (
-    id: string,
-    fields: Omit<TemplateDTO, "id">,
-  ) => {
+  const updateTemplate = async (id: string, fields: Omit<TemplateDTO, "id">) => {
     try {
       const newTemplate = await sdk.backend.updateTemplate(id, fields);
       if (newTemplate) {
@@ -133,6 +116,20 @@ export const useTemplateRepository = () => {
     }
   };
 
+  const deleteTemplate = async (id: string) => {
+    try {
+      await sdk.backend.deleteTemplate(id);
+      return {
+        type: "Ok" as const,
+      };
+    } catch {
+      return {
+        type: "Err" as const,
+        error: "Failed to delete template",
+      };
+    }
+  };
+
   const clearTemplates = async () => {
     try {
       await sdk.backend.clearTemplates();
@@ -147,6 +144,21 @@ export const useTemplateRepository = () => {
     }
   };
 
+  const importOpenApi = async (fileContents: string) => {
+    try {
+      const created = await sdk.backend.importOpenApi(fileContents);
+      return {
+        type: "Ok" as const,
+        templates: created,
+      };
+    } catch (e) {
+      return {
+        type: "Err" as const,
+        error: (e as Error).message ?? "Failed to import OpenAPI file",
+      };
+    }
+  };
+
   return {
     getTemplates,
     toggleTemplateRole,
@@ -155,5 +167,6 @@ export const useTemplateRepository = () => {
     updateTemplate,
     deleteTemplate,
     clearTemplates,
+    importOpenApi,
   };
 };
