@@ -28,6 +28,8 @@ import { type BackendEvents } from "./types";
 
 export type { BackendEvents } from "./types";
 
+import { importOpenApi } from "./services/openapi";
+
 export type API = DefineAPI<{
   // Role endpoints
   getRoles: typeof getRoles;
@@ -50,6 +52,7 @@ export type API = DefineAPI<{
   toggleTemplateRole: typeof toggleTemplateRole;
   toggleTemplateUser: typeof toggleTemplateUser;
   addTemplateFromContext: typeof addTemplateFromContext;
+  importOpenApi: typeof importOpenApi;
 
   // Settings endpoints
   getSettings: typeof getSettings;
@@ -91,6 +94,7 @@ export async function init(sdk: SDK<API, BackendEvents>) {
   sdk.api.register("toggleTemplateUser", toggleTemplateUser);
   sdk.api.register("clearTemplates", clearTemplates);
   sdk.api.register("addTemplateFromContext", addTemplateFromContext);
+  sdk.api.register("importOpenApi", importOpenApi);
 
   // Settings endpoints
   sdk.api.register("getSettings", getSettings);
