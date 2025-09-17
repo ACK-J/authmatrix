@@ -24,7 +24,6 @@
           v-tooltip="
             'Automatically add each intercepted request to the testing queue for analysis.'
           "
-          <!-- existing props -->
         />
       </div>
 
